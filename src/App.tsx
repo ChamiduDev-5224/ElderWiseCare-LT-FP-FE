@@ -15,6 +15,9 @@ import ShoppingCart from './components/cart/ShoppingCart';
 import FAQPag from './components/faq/FAQPag';
 import AboutUs from './components/aboutUs/AboutUs';
 import Service from './components/services/Service';
+import CareTakerService from './components/caretaker/caretaker-service/CareTakerService';
+import MessageScreen from './components/common/MessageScreen';
+import { UpdateProfile } from './components/profile/UpdateProfile';
 
 function App() {
     return (
@@ -33,6 +36,9 @@ function App() {
                         <Route path="/product/:id" element={<ProductDetail />} />
                         <Route path="/shopping-cart" element={<ShoppingCart />} />
                         <Route path="/services" element={<Service />} />
+                        <Route path="/caretake-service" element={<CareTakerService />} />
+                        <Route path="/msgScreen" element={<MessageScreen />} />
+                        <Route path="/updateProfile" element={<UpdateProfile />} />
                     </Route>
                     <Route path="*" element={<NotFound />} />
                 </Routes>

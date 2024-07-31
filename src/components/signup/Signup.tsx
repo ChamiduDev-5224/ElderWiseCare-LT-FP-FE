@@ -5,13 +5,29 @@ import signupImg from '../../assets/signup.svg'
 import logo from '../../assets/logo.svg'
 import google from '../../assets/google.svg'
 import PanelLoader from '../common/loaders/PanelLoader';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { DangerMsg } from '../common/message/Messages';
+import { isEmail, isEmpty, passwordLength } from '../validation/FormValidation';
+import { Msgs } from '../validation/Messages';
+import Toast from '../common/toast/Toast';
+import { useDispatch } from "react-redux";
+import { registerInfo } from '../../redux/slices/auth_slice';
+
 const Signup = () => {
     const [loading, setLoading] = useState(true);
     const [formSubmit, setFormSubmit] = useState(false);
+    const [emailErr, setEmailErr] = useState('')
+    const [paswdErr, setPaswdErr] = useState('')
+    const [userNameErr, setUserNameErr] = useState('')
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' }>({ message: '', type: 'info' });
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const showToast = (message: string, type: 'success' | 'error' | 'info') => {
+        setToast({ message, type });
+    };
     const [data, setData] = useState({
-        id: '',
-        username: '',
+        userName: '',
         email: '',
         password: ''
     })
@@ -23,12 +39,51 @@ const Signup = () => {
 
     // register 
     const onCreateAccount = () => {
-        setFormSubmit(true)
-        setTimeout(() => {
-            setFormSubmit(false)
 
-        }, 2000);
-        console.log(data);
+        setFormSubmit(true) // loader acive 
+
+        //userName empty
+        if (isEmpty(data.userName)) {
+            setFormSubmit(false);
+            return setUserNameErr(Msgs.usernReq)
+        }
+
+        //email empty
+        if (isEmpty(data.email)) {
+            setFormSubmit(false);
+            return setEmailErr(Msgs.emailReq)
+        }
+        //email check
+        if (!isEmail(data.email)) {
+            setFormSubmit(false);
+            return setEmailErr(Msgs.emilValid)
+        }
+        //Pwd empty
+        if (isEmpty(data.password)) {
+            setFormSubmit(false);
+            return setPaswdErr(Msgs.pwdReq)
+        }
+
+        //Pwd Length
+        if (!passwordLength(data.password)) {
+            setFormSubmit(false);
+            return setPaswdErr(Msgs.pwdLength)
+        }
+
+        axios.post(import.meta.env.VITE_REACT_BASE_URL + '/auth/signup', data)
+            .then(function (response) {
+                if (response.data.sts == 1) {
+                    dispatch(registerInfo(response.data.data));
+                    navigate('/signin')
+                } else {
+                    showToast(response.data.message, 'error')
+                }
+            })
+            .catch(function () {
+                showToast("You can't signup. Please try it again.", 'error')
+            });
+
+        setFormSubmit(false)//loader deactive
 
     }
 
@@ -38,9 +93,11 @@ const Signup = () => {
             ...data,
             [e.target.id]: e.target.value,
         });
-        console.log(data);
-
+        setUserNameErr('')
+        setPaswdErr('')
+        setEmailErr('')
     };
+
 
     return (
         <div className={`h-full`}>
@@ -50,23 +107,28 @@ const Signup = () => {
             ) :
                 (
                     <div className="flex flex-row justify-between">
-                        <div className="flex flex-col w-[100%] md:w-[50%] lg:w-[40%] px-16 py-10 z-[900]">
+                        <div className="flex flex-col w-[100%] md:w-[50%] lg:w-[40%] px-16 py-8 z-[900]">
                             <img src={logo} alt="logo" width={100} height={100} className='self-center' />
                             <p className='font-semibold mt-4'>User Name</p>
-                            <input type="text" id="username"
-                                className='border-2 pl-6 py-2 rounded-md border-mid-green' value={data.username} onChange={(e) => {
+                            <input type="text" id="userName"
+                                className='border-2 pl-6 py-2 rounded-md border-mid-green' value={data.userName} onChange={(e) => {
                                     handleChange(e);
                                 }} />
+                            <DangerMsg msg={userNameErr} />
+
                             <p className='font-semibold mt-4'>Email</p>
                             <input type="email" id="email"
                                 className='border-2 pl-6 py-2 text-gray-400 rounded-md border-mid-green' value={data.email} onChange={(e) => {
                                     handleChange(e);
                                 }} />
+                            <DangerMsg msg={emailErr} />
                             <p className='font-semibold mt-4'>Password</p>
                             <input type="password" id="password"
                                 className='border-2 pl-6 py-2  rounded-md border-mid-green' value={data.password} onChange={(e) => {
                                     handleChange(e);
                                 }} />
+                            <DangerMsg msg={paswdErr} />
+
                             <span className='text-sm text-slate-500 font-normal'>Must be at least 8 characters</span>
                             <button className='mt-6 bg-dark-green text-light-green rounded-md py-3 hover:drop-shadow-xl' onClick={onCreateAccount}>Create Account</button>
                             <button className='mt-6 bg-light-green text-gray-800 rounded-md py-3 flex flex-row items-center justify-center gap-3 hover:drop-shadow-lg'><img src={google} className='w-8 h-8' alt="google" />Signup with Google</button>
@@ -86,7 +148,16 @@ const Signup = () => {
                                 filter: 'grayscale(40%)',
                             }} />
                         </div>
+                        {toast.message && (
+                            <Toast
+                                message={toast.message}
+                                type={toast.type}
+                                duration={5000}
+                                onClose={() => setToast({ message: '', type: 'info' })}
+                            />
+                        )}
                     </div>
+
                 )}
 
         </div>

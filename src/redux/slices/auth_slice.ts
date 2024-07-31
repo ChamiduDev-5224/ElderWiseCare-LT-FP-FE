@@ -1,18 +1,26 @@
 import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
-  isvisible: false,
-  message: "",
-  type: "success",
+  userInfo: {
+    email: "",
+    userName: "",
+  },
+  token:""
 };
 
 export const authSlice = createSlice({
-  name: "toast",
+  name: "auth",
   initialState,
   reducers: {
-    google: (state, action) => {
-      state.isvisible = action.payload;
+    
+    registerInfo: (state, action) => {
+      state.userInfo = action.payload;
+      
     },
+    setToken: (state, action) => {
+      state.token = action.payload;
+      
+    }
   },
 });
-export const { google } = authSlice.actions;
+export const { registerInfo,setToken } = authSlice.actions;
 export default authSlice.reducer;
