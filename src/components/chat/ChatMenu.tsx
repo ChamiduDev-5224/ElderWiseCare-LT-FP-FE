@@ -10,6 +10,7 @@ interface ChatMenuChat {
     name: string;
 }
 
+
 const ChatMenu = ({ onSelectChat }: { onSelectChat: (chat: ChatMenuChat) => void }) => {
     const userInfo = useSelector((state: any) => state.auth.userInfo);
     const [chats, setChats] = useState<ChatMenuChat[]>([]);

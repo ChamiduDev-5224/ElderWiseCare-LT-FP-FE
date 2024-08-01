@@ -33,3 +33,4 @@ export interface Service {
     timestamp: string;
     profilePicture: string;
 }
+

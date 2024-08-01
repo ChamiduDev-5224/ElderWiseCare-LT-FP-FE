@@ -383,22 +383,41 @@ const GigDetails = ({ gig }: { gig: Gig }) => {
     );
 };
 
+interface Message {
+    sender: string;
+    text: string;
+    dateTime: string;
+}
+
 interface Chat {
     id: string;
     name: string;
     lastMessage: string;
     timestamp: string;
     profilePicture: string; // Profile picture URL is required
+    messages: Message[]; // Add messages property
 }
-
-
+interface ChatMenuChat {
+    id: number;
+    imgUrl: string;
+    name: string;
+}
 
 // Component for viewing messages
 const Messages = () => {
     const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
 
-    const handleSelectChat = (chat: Chat) => {
-        setSelectedChat(chat);
+    const handleSelectChat = (chat: ChatMenuChat) => {
+        // Map or convert ChatMenuChat to Chat if needed
+        const detailedChat: Chat = {
+            id: chat.id.toString(),
+            name: chat.name,
+            lastMessage: '', // Placeholder or fetched from an API
+            timestamp: '', // Placeholder or fetched from an API
+            profilePicture: "",
+            messages: [], // Placeholder or fetched from an API
+        };
+        setSelectedChat(detailedChat);
     };
 
     return (
