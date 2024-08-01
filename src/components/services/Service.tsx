@@ -287,6 +287,8 @@ const ManageGig = ({ onSelectGig }: { onSelectGig: (gig: Gig) => void }) => {
 
     const handleEdit = (id: number) => {
         // Add functionality to edit the gig
+        console.log(id);
+        
     };
 
     const handleDelete = (id: number) => {

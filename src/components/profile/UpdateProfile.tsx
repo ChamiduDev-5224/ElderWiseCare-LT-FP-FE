@@ -5,28 +5,44 @@ import { isEmpty } from '../validation/FormValidation';
 import { Msgs } from '../validation/Messages';
 import { DangerMsg } from '../common/message/Messages';
 import PanelLoader from '../common/loaders/PanelLoader';
-import {  useSelector } from 'react-redux';
-
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Toast from '../common/toast/Toast';
+
+// Define interfaces for types
+interface FormData {
+    prefix: string;
+    firstName: string;
+    lastName: string;
+    telephone: string;
+    gender: string;
+    userType: string;
+    province: string;
+    district: string;
+    city: string;
+    street: string;
+    image: File | null;
+}
+
+interface Location {
+    id: number;
+    name: string;
+    province_id?: number;
+    district_id?: number;
+    latitude?: string;
+    longitude?: string;
+    postcode?: string;
+}
+
+interface Errors {
+    [key: string]: string;
+}
 
 export const UpdateProfile = () => {
     const navigate = useNavigate();
     const userInfo = useSelector((state: any) => state.auth.userInfo);
 
-    const [formData, setFormData] = useState<{
-        prefix: string;
-        firstName: string;
-        lastName: string;
-        telephone: string;
-        gender: string;
-        userType: string;
-        province: string;
-        district: string;
-        city: string;
-        street: string;
-        image: File | null;
-    }>({
+    const [formData, setFormData] = useState<FormData>({
         prefix: '',
         firstName: '',
         lastName: '',
@@ -40,13 +56,13 @@ export const UpdateProfile = () => {
         image: null,
     });
 
-    const [districts, setDistricts] = useState<any[]>([]);
-    const [cities, setCities] = useState<any[]>([]);
-    const [provinces, setProvinces] = useState<any[]>([]);
-    const [cityData, setCityData] = useState<any[]>([]);
+    const [districts, setDistricts] = useState<Location[]>([]);
+    const [cities, setCities] = useState<Location[]>([]);
+    const [provinces, setProvinces] = useState<Location[]>([]);
+    const [cityData, setCityData] = useState<Location[]>([]);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' }>({ message: '', type: 'info' });
 
-    const [errors, setErrors] = useState<any>({});
+    const [errors, setErrors] = useState<Errors>({});
     const [isLoader, setIsLoader] = useState(false);
 
     useEffect(() => {
@@ -82,7 +98,7 @@ export const UpdateProfile = () => {
 
     useEffect(() => {
         if (formData.province) {
-            const selectedDistricts = districts.filter(dis => dis.province_id === formData.province);
+            const selectedDistricts = districts.filter(dis => dis.province_id === parseInt(formData.province));
             setDistricts(selectedDistricts);
         } else {
             setDistricts([]);
@@ -93,7 +109,7 @@ export const UpdateProfile = () => {
 
     useEffect(() => {
         if (formData.district) {
-            const selectedCities = cityData.filter(city => city.district_id === formData.district);
+            const selectedCities = cityData.filter(city => city.district_id === parseInt(formData.district));
             setCities(selectedCities);
         } else {
             setCities([]);
@@ -114,7 +130,7 @@ export const UpdateProfile = () => {
     };
 
     const validateForm = () => {
-        const newErrors: any = {};
+        const newErrors: Errors = {};
         if (isEmpty(formData.firstName)) newErrors.firstName = Msgs.firstNameReq;
         if (isEmpty(formData.lastName)) newErrors.lastName = Msgs.lastNameReq;
         if (isEmpty(formData.telephone)) newErrors.telephone = Msgs.telephoneReq;
@@ -134,13 +150,13 @@ export const UpdateProfile = () => {
         if (!validateForm()) return;
 
         setIsLoader(true);
-        let imageUrl: any = '';
+        let imageUrl: string = '';
         if (formData.image) {
             imageUrl = await uploadImage(formData.image);
         }
         setIsLoader(false);
 
-        const selectedCity = cities.find(city => city.id === formData.city);
+        const selectedCity = cities.find(city => city.id == parseInt(formData.city));
 
         const dataToSubmit = {
             ...formData,
@@ -170,7 +186,7 @@ export const UpdateProfile = () => {
         setIsLoader(false);
     };
 
-    const uploadImage = async (imageFile: any) => {
+    const uploadImage = async (imageFile: File) => {
         const formData = new FormData();
         formData.append('file', imageFile);
 
@@ -218,54 +234,48 @@ export const UpdateProfile = () => {
                                 value={formData.prefix}
                                 onChange={handleChange}
                             >
-                                <option value="">Select</option>
-                                <option value={4}>Dr</option>
-                                <option value={1}>Mr</option>
-                                <option value={3}>Mrs</option>
-                                <option value={2}>Ms</option>
+                                <option value="">Select Prefix</option>
+                                <option value="Mr">Mr</option>
+                                <option value="Ms">Ms</option>
                             </select>
                             {errors.prefix && <DangerMsg msg={errors.prefix} />}
                         </div>
-
                         <div>
                             <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name<span className="text-red-500">*</span></label>
                             <input
                                 type="text"
                                 id="firstName"
                                 name="firstName"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-600"
                                 value={formData.firstName}
                                 onChange={handleChange}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-600"
                             />
                             {errors.firstName && <DangerMsg msg={errors.firstName} />}
                         </div>
-
                         <div>
                             <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name<span className="text-red-500">*</span></label>
                             <input
                                 type="text"
                                 id="lastName"
                                 name="lastName"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-600"
                                 value={formData.lastName}
                                 onChange={handleChange}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-600"
                             />
                             {errors.lastName && <DangerMsg msg={errors.lastName} />}
                         </div>
-
                         <div>
                             <label htmlFor="telephone" className="block text-sm font-medium text-gray-700">Telephone<span className="text-red-500">*</span></label>
                             <input
-                                type="text"
+                                type="tel"
                                 id="telephone"
                                 name="telephone"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-600"
                                 value={formData.telephone}
                                 onChange={handleChange}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-600"
                             />
                             {errors.telephone && <DangerMsg msg={errors.telephone} />}
                         </div>
-
                         <div>
                             <label htmlFor="gender" className="block text-sm font-medium text-gray-700">Gender<span className="text-red-500">*</span></label>
                             <select
@@ -275,13 +285,12 @@ export const UpdateProfile = () => {
                                 value={formData.gender}
                                 onChange={handleChange}
                             >
-                                <option value="">Select</option>
-                                <option value={1}>Male</option>
-                                <option value={2}>Female</option>
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
                             </select>
                             {errors.gender && <DangerMsg msg={errors.gender} />}
                         </div>
-
                         <div>
                             <label htmlFor="userType" className="block text-sm font-medium text-gray-700">User Type<span className="text-red-500">*</span></label>
                             <select
@@ -291,13 +300,17 @@ export const UpdateProfile = () => {
                                 value={formData.userType}
                                 onChange={handleChange}
                             >
-                                <option value="">Select</option>
-                                <option value={1}>User</option>
-                                <option value={2}>Admin</option>
+                                <option value="">Select User Type</option>
+                                <option value="caregiver">Caregiver</option>
+                                <option value="caretaker">Caretaker</option>
                             </select>
                             {errors.userType && <DangerMsg msg={errors.userType} />}
                         </div>
-
+                    </div>
+                </section>
+                <section className="px-6 mt-6">
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">Location Information</h3>
+                    <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="province" className="block text-sm font-medium text-gray-700">Province<span className="text-red-500">*</span></label>
                             <select
@@ -307,14 +320,13 @@ export const UpdateProfile = () => {
                                 value={formData.province}
                                 onChange={handleChange}
                             >
-                                <option value="">Select</option>
+                                <option value="">Select Province</option>
                                 {provinces.map(province => (
                                     <option key={province.id} value={province.id}>{province.name}</option>
                                 ))}
                             </select>
                             {errors.province && <DangerMsg msg={errors.province} />}
                         </div>
-
                         <div>
                             <label htmlFor="district" className="block text-sm font-medium text-gray-700">District<span className="text-red-500">*</span></label>
                             <select
@@ -324,14 +336,13 @@ export const UpdateProfile = () => {
                                 value={formData.district}
                                 onChange={handleChange}
                             >
-                                <option value="">Select</option>
+                                <option value="">Select District</option>
                                 {districts.map(district => (
                                     <option key={district.id} value={district.id}>{district.name}</option>
                                 ))}
                             </select>
                             {errors.district && <DangerMsg msg={errors.district} />}
                         </div>
-
                         <div>
                             <label htmlFor="city" className="block text-sm font-medium text-gray-700">City<span className="text-red-500">*</span></label>
                             <select
@@ -341,47 +352,43 @@ export const UpdateProfile = () => {
                                 value={formData.city}
                                 onChange={handleChange}
                             >
-                                <option value="">Select</option>
+                                <option value="">Select City</option>
                                 {cities.map(city => (
                                     <option key={city.id} value={city.id}>{city.name}</option>
                                 ))}
                             </select>
                             {errors.city && <DangerMsg msg={errors.city} />}
                         </div>
-
                         <div>
                             <label htmlFor="street" className="block text-sm font-medium text-gray-700">Street<span className="text-red-500">*</span></label>
                             <input
                                 type="text"
                                 id="street"
                                 name="street"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-600"
                                 value={formData.street}
                                 onChange={handleChange}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-600"
                             />
                             {errors.street && <DangerMsg msg={errors.street} />}
                         </div>
-
-                        <div className='col-span-2'>
-                            <label htmlFor="image" className="block text-sm font-medium text-gray-700">Profile Image</label>
+                        <div>
+                            <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image</label>
                             <input
                                 type="file"
                                 id="image"
                                 name="image"
-                                accept="image/*"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-600"
                                 onChange={handleImageChange}
+                                className="mt-1 block w-full text-sm text-gray-500"
                             />
                         </div>
-
                     </div>
                 </section>
-                <div className="flex justify-end px-6 py-4">
+                <div className="px-6 py-4 flex justify-end">
                     <button
                         type="submit"
-                        className="bg-slate-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-600"
+                        className="bg-green-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600"
                     >
-                        Save Changes
+                        Update Profile
                     </button>
                 </div>
             </form>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import ChatMenu from "../chat/ChatMenu";
 import ChatScreen from "../chat/ChatScreen";
 import { Navbar } from "./Navbar";
+
 interface Chat {
     id: string;
     name: string;

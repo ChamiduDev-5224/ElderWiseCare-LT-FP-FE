@@ -39,7 +39,6 @@ const mockProducts: Product[] = [
 
 const Product: React.FC = () => {
     const navigate = useNavigate();
-    const [products, setProducts] = useState<Product[]>(mockProducts);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRating, setSelectedRating] = useState<number | null>(null);
     const [sortPrice, setSortPrice] = useState<string | null>(null);
@@ -63,14 +62,14 @@ const Product: React.FC = () => {
         setCurrentPage(page);
     };
     const handleProductSelect = (productId: number) => {
-        const product = products.find(p => p.id === productId);
+        const product = mockProducts.find(p => p.id === productId);
         if (product) {
             setSelectedProduct(product);
             // Example: Redirect to the product detail page using React Router
             navigate(`/product/${productId}`);
         }
     };
-    const filteredProducts = products.filter(product => {
+    const filteredProducts = mockProducts.filter(product => {
         const isSelectedRatingDecimal = selectedRating !== null && !Number.isInteger(selectedRating);
 
         if (selectedRating === null) {

@@ -91,7 +91,6 @@ export const Login = () => {
 
     }
 
-
     return (
         <div className={`h-full`}>
             {formSubmit && <PanelLoader />}
@@ -139,8 +138,10 @@ export const Login = () => {
                             <GoogleOAuthProvider clientId={googleClientId}>
                                 <GoogleLogin
                                     onSuccess={credentialResponse => {
+                                        console.log(credentialResponse);
                                     }}
                                     onError={() => {
+                                        console.log('Login Failed');
                                     }}
                                     locale="2"
                                 />
