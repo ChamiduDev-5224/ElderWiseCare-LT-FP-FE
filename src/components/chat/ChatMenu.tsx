@@ -3,15 +3,16 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 // Define the interface for chat items
-interface Chat {
+
+interface ChatMenuChat {
     id: number;
     imgUrl: string;
     name: string;
 }
 
-const ChatMenu = ({ onSelectChat }: { onSelectChat: (chat: Chat) => void }) => {
+const ChatMenu = ({ onSelectChat }: { onSelectChat: (chat: ChatMenuChat) => void }) => {
     const userInfo = useSelector((state: any) => state.auth.userInfo);
-    const [chats, setChats] = useState<Chat[]>([]);
+    const [chats, setChats] = useState<ChatMenuChat[]>([]);
     const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
 
     useEffect(() => {
@@ -24,7 +25,7 @@ const ChatMenu = ({ onSelectChat }: { onSelectChat: (chat: Chat) => void }) => {
             });
     }, [userInfo.id]);
 
-    const handleChatClick = (chat: Chat) => {
+    const handleChatClick = (chat: ChatMenuChat) => {
         setSelectedChatId(chat.id);
         onSelectChat(chat);
     };

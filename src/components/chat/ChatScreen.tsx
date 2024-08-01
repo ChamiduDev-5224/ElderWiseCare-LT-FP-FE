@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 import  { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -10,9 +11,9 @@ interface Message {
 }
 
 interface Chat {
-    id: number;
+    id: string; // Match type with `MessageScreen`
     name: string;
-    messages: Message[];
+    messages: Message[]; // Ensure this is included
 }
 
 const ChatScreen = ({ chat }: { chat: Chat }) => {
@@ -27,9 +28,12 @@ const ChatScreen = ({ chat }: { chat: Chat }) => {
 
         // Handle incoming messages
         newSocket.on('message', (message: Message) => {
-            chat.messages.push(message);
-            // Trigger re-render by updating state
-            setMessageText('');
+            // Ensure chat.messages exists before pushing
+            if (chat.messages) {
+                chat.messages.push(message);
+                // Trigger re-render by updating state
+                setMessageText('');
+            }
         });
 
         // Clean up on component unmount
@@ -93,5 +97,4 @@ const ChatScreen = ({ chat }: { chat: Chat }) => {
         </div>
     );
 };
-
 export default ChatScreen;
