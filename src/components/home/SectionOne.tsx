@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import banner1 from '../../assets/banner1.svg'
+import banner1 from '../../assets/banner1.webp'
 import PanelLoader from '../common/loaders/PanelLoader'
 export const SectionOne = () => {
     const [loading, setLoading] = useState(true);
